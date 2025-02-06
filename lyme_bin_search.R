@@ -2,7 +2,10 @@
 
 # code to create Figure 3 in the main text
 
-
+# general function to find the index of the first element in xs for which test evaluates to a positive number
+# assuming test(x) for x in xs is monotonically increasing.
+# If test never evaluates to exactly 0, returns a non-integer index linearly interpolated
+# between the last index which evaluates to negative and the first index which evaluates to positive
 bin_search <- function(xs, test) {
   b <- bin_search_index(xs,
                         function(x, history) return(ifelse(x %in% history$x,
@@ -19,6 +22,7 @@ bin_search <- function(xs, test) {
   return(unname((1-frac)*xs[index-1] + frac*xs[index]))
 }
 
+# helper function for bin_search
 bin_search_index <- function(xs, test, history) {
   if (length(xs) <= 1 || any(is.na(xs))) {
     return(c(index=NA, frac=NA))
@@ -100,6 +104,7 @@ bin_search_index <- function(xs, test, history) {
 }
 
 
+# the test function, returns the difference of the average equilibrium infected questing nymph densities between the outside and the inside of the exclosure 
 test_outside_greater <- function(r_in) {
   out_pdes <- run_pdes(r_ins=r_in, v1s=v1, vTs=vT, beta_mults=beta_mult)
   
@@ -117,6 +122,8 @@ test_outside_greater <- function(r_in) {
 
 r_ins <- rs[rs > 0 & rs < r_out * 3/4]
 
+# data frame for the values of r_in at which the average equilibrium infected questing nymph density goes from
+# being higher inside the exclosure to higher to being higher outside the exclosure
 switch_r_ins <- data.frame()
 
 for (beta_mult in c(beta_mult_low,beta_mult_mid,beta_mult_high)) {
@@ -144,6 +151,7 @@ for (v1 in seq(v1_low, v1_high, length=21)) {
 }
 
 
+# Figure 3 in the main text
 switch_r_ins %>% 
   ggplot() +
   geom_line(aes(x=v1, y=switch_r_in,

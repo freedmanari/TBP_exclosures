@@ -1,7 +1,12 @@
+# run this file before lyme_bin_search.R
+
+# code to create Figures 2, 4, and 5 in the main text
+
 require(ReacTran)
 require(tidyverse)
 require(lemon)
 
+# ODEs for the model without space
 odes <- function(t, y, parms) {
   names(y) <- var_names
   with(as.list(c(y,parms)), {
@@ -54,7 +59,7 @@ odes <- function(t, y, parms) {
   })
 }
 
-
+# PDEs for the model with space
 pdes <- function(t, y, parms) {
   with(as.list(parms), {
     rs_out <- rs[rs >= r_in]
@@ -150,13 +155,13 @@ pdes <- function(t, y, parms) {
 
 
 N_r <- 800 # number of slices of r
-r_out <- 1000 #radius of total area
+r_out <- 1000 # radius of total area
 
-rs <- seq(0, r_out, len = N_r+1)
-dr <- rs[2] - rs[1]
-r_mids <- (rs[-1] + rs[-(N_r+1)]) / 2
+rs <- seq(0, r_out, len = N_r+1) # radius slices
+dr <- rs[2] - rs[1] # distance between radius slices
+r_mids <- (rs[-1] + rs[-(N_r+1)]) / 2 # radius midpoints
 N_theta <- 3 # minimum allowable number of slices of theta
-thetas <- seq(0, 2*pi, len = N_theta+1)
+thetas <- seq(0, 2*pi, len = N_theta+1) # theta coordinates for wedges, though these are irreleveant as our model initial values and outputs are radially symmetric
 N_grid <- N_r*N_theta
 y0_dens <- # initial conditions for the non-spatial ODEs
   c(H1_s = .0015, H1_i = 0, H1_r = 0,
@@ -181,6 +186,7 @@ beta_mult_low <- 2
 beta_mult_mid <- 3
 beta_mult_high <- 5
 
+# runs the PDEs and stores their outputs for a given array of parameters
 run_pdes <- function(r_ins, v1s=v1_mid, v2=250, vTs=0, beta_mults=beta_mult_mid, beta2N_reductions=1, track_vars=c("NQ_i"),
                      track_time=FALSE, max_time=ifelse(track_time,100,3000), print_progress=TRUE) {
   out <- data.frame()
@@ -237,7 +243,7 @@ run_pdes <- function(r_ins, v1s=v1_mid, v2=250, vTs=0, beta_mults=beta_mult_mid,
     ts <- seq(0, max_time, length=ifelse(track_time, 501, 2))
     out_pdes <- ode.2D(y = y0, times = ts, parms = parms,
                        func = pdes, dimens = c(N_r, N_theta),
-                       lrw = 1e7, cyclicBnd = 2) #might need to increase lrw
+                       lrw = 1e7, cyclicBnd = 2) # run spatial PDEs to equilibrium, might need to increase lrw
     
     for (i in which(var_names %in% track_vars)) {
       out <-
