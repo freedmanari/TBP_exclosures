@@ -127,10 +127,10 @@ r_ins <- rs[rs > 0 & rs < r_out * 3/4]
 switch_r_ins <- data.frame()
 
 for (beta_mult in c(beta_mult_low,beta_mult_mid,beta_mult_high)) {
-for (vT in c(0,5)) {
+for (vT in c(0,1)) {
   print(noquote(paste0("beta multiplier = ",beta_mult,", with",ifelse(vT==0,"out","")," tick movement")))
   print(noquote("v1 ="))
-for (v1 in seq(v1_low, v1_high, length=21)) {
+for (v1 in seq(v1_low, v1_high, length=19)) {
   print(v1)
   
   if (test_outside_greater(r_ins[1])>0 || test_outside_greater(r_ins[length(r_ins)])<0) {
@@ -158,13 +158,13 @@ switch_r_ins %>%
                 linetype=tick_movement, color=as.factor(beta_mult),
                 group=interaction(tick_movement,as.factor(beta_mult))), linewidth=.7) +
   coord_cartesian(ylim=c(0,300)) +
-  scale_x_continuous(expand=expansion(c(0,0))) +
+  scale_x_continuous(expand=expansion(c(0,0)),breaks=seq(10,100,10)) +
   scale_y_continuous(expand=expansion(c(0,0)),breaks=seq(0,300,100)) +
   theme_classic() +
   xlab("average daily rodent movement (m/day)") +
   ylab("radius of exclosure (m)\nat which average NQi is equal\ninside & outside of exclosure") +
   scale_color_discrete(name="tick-host\ncontact rates",labels=c("low","medium","high")) +
-  scale_linetype_discrete(name="questing tick\nmovement",labels=c("0 m/day","5 m/day"))
+  scale_linetype_discrete(name="questing tick\nmovement",labels=c("0 m/day","1 m/day"))
 
 
 

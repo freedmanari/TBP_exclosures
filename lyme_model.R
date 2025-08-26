@@ -179,8 +179,8 @@ cross_sections_out <- rep(vars_out, each=N_theta)*N_theta + rep(-N_theta:-1,time
 
 
 v1_low <- 10
-v1_mid <- 25
-v1_high <- 50
+v1_mid <- 30
+v1_high <- 100
 
 beta_mult_low <- 2
 beta_mult_mid <- 3
@@ -188,7 +188,7 @@ beta_mult_high <- 5
 
 # runs the PDEs and stores their outputs for a given array of parameters
 run_pdes <- function(r_ins, v1s=v1_mid, v2=250, vTs=0, beta_mults=beta_mult_mid, beta2N_reductions=1, track_vars=c("NQ_i"),
-                     track_time=FALSE, max_time=ifelse(track_time,100,3000), print_progress=TRUE) {
+                     track_time=FALSE, max_time=ifelse(track_time,200,3000), print_progress=TRUE) {
   out <- data.frame()
   
   for (beta_mult in beta_mults) {
@@ -279,9 +279,9 @@ run_pdes <- function(r_ins, v1s=v1_mid, v2=250, vTs=0, beta_mults=beta_mult_mid,
 # code to make Figure 2 in the main text
 
 eqs <- run_pdes(r_ins=rs[rs>0 & rs<=300],
-                vTs=c(0,5),v1s=c(v1_low,v1_mid,v1_high))
+                vTs=c(0,1),v1s=c(v1_low,v1_mid,v1_high))
 
-facet_labels <- c("low rodent movement\n(10 m/day)","medium rodent movement\n(25 m/day)","high rodent movement\n(50 m/day)")
+facet_labels <- c("low rodent movement\n(10 m/day)","medium rodent movement\n(30 m/day)","high rodent movement\n(100 m/day)")
 names(facet_labels) <- c(v1_low, v1_mid,v1_high)
 
 
@@ -299,7 +299,7 @@ eqs %>%
   scale_x_continuous(name="radius of exclosure (m)",limits=c(0,300),expand=c(0,0)) +
   scale_y_continuous(name="average density of infected\nquesting nymphs (per ha)",
                      breaks=seq(0,18,3),expand=expansion(c(0,.01))) +
-  scale_linetype_discrete(name="questing tick\nmovement",labels=c("0 m/day","5 m/day")) +
+  scale_linetype_discrete(name="questing tick\nmovement",labels=c("0 m/day","1 m/day")) +
   theme(panel.background=element_blank(),
         panel.grid=element_blank(),
         axis.line.x=element_line(),
@@ -308,7 +308,8 @@ eqs %>%
         strip.text=element_text(size=10),
         panel.spacing = unit(1, "lines"),
         legend.position = "bottom",
-        legend.text = element_text(size=10))
+        legend.text = element_text(size=10),
+        legend.key = element_rect(fill = NA))
 
 
 
@@ -316,8 +317,8 @@ eqs %>%
 ####
 # code to make Figure 4 in the main text
 
-eqs_no_tick_movement <- run_pdes(r_ins = c(50,150))
-outs_no_tick_movement <- run_pdes(r_ins = c(50,150), track_time=TRUE, max_time=200)
+eqs_no_tick_movement <- run_pdes(r_ins = c(50,150), v1s=v1_mid)
+outs_no_tick_movement <- run_pdes(r_ins = c(50,150), v1s=v1_mid, track_time=TRUE)
 
 for (r_in_plot in c(50,150)) {
   print(
@@ -378,8 +379,8 @@ for (r_in_plot in c(50,150)) {
 #####
 # code to make Figure 5 in the main text
 
-eqs_tick_movement <- run_pdes(r_ins = c(50,150), v1s=v1_high, vTs=5)
-outs_tick_movement <- run_pdes(r_ins = c(50,150), v1s=v1_high, vTs=5, track_time=TRUE, max_time=200)
+eqs_tick_movement <- run_pdes(r_ins = c(50,150), v1s=v1_high, vTs=1)
+outs_tick_movement <- run_pdes(r_ins = c(50,150), v1s=v1_high, vTs=1, track_time=TRUE)
 
 for (r_in_plot in c(50,150)) {
   print(
@@ -444,10 +445,52 @@ for (r_in_plot in c(50,150)) {
 ######
 # code to make Figure S1 in the supplement
 
-eqs_beta2N_reduction <- run_pdes(r_ins = 150, v1s=v1_high, vTs=5, beta2N_reductions=c(.1,.25,1))
+eqs_vTs <- run_pdes(r_ins = 150, v1s=v1_high, vTs=c(0,1,3))
 
 
-for (beta2N_reduction_plot in c(.1,.25,1)) {
+for (vT_plot in c(0,1,3)) {
+  print(
+    eqs_vTs %>%
+      filter(r <= 200, vT==vT_plot) %>%
+      ggplot() +
+      geom_tile(aes(x=0, y=r, fill=y, color=y)) +
+      scale_fill_gradientn(colors=rev(rainbow(7))[-1],
+                           name="density of infected\nquesting nymphs\n(per ha)") +
+      scale_color_gradientn(colors=rev(rainbow(7))[-1],
+                            name="density of infected\nquesting nymphs\n(per ha)") +
+      coord_polar() +
+      geom_hline(aes(yintercept=r_in), linetype="dashed", linewidth=1) +
+      scale_x_continuous(expand=expansion(c(0,0))) +
+      scale_y_continuous(expand=expansion(c(0,0)), name="distance from center of exclosure (m)") +
+      guides(fill = guide_colorbar(barheight = unit(1.5,"in"),
+                                   ticks.colour = "black",
+                                   ticks.linewidth = .5,
+                                   frame.colour = "black",
+                                   frame.linewidth = .5,
+                                   title.hjust = .5)) +
+      theme(panel.background=element_blank(),
+            panel.grid=element_blank(),
+            axis.line.y=element_line(),
+            axis.text.x=element_blank(),
+            axis.title.x=element_blank(),
+            axis.ticks.x=element_blank(),
+            legend.title=element_text(size=9),
+            axis.line.x=element_blank(),
+            legend.position="right")
+  )
+}
+
+
+
+
+
+######
+# code to make Figure S2 in the supplement
+
+eqs_beta2N_reduction <- run_pdes(r_ins = 150, v1s=v1_mid, vTs=1, beta2N_reductions=c(.05,.2,1))
+
+
+for (beta2N_reduction_plot in c(.05,.2,1)) {
   print(
     eqs_beta2N_reduction %>%
       filter(r <= 200, beta2N_reduction==beta2N_reduction_plot) %>%
@@ -478,3 +521,6 @@ for (beta2N_reduction_plot in c(.1,.25,1)) {
             legend.position="right")
   )
 }
+
+
+
