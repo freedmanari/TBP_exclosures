@@ -441,9 +441,58 @@ for (r_in_plot in c(50,150)) {
 
 
 
-
 ######
 # code to make Figure S1 in the supplement
+
+eqs_prop_inf <- run_pdes(r_ins = c(50,150), v1s=c(v1_mid, v1_high), vTs=c(0,1), track_vars=c("NQ_s","NQ_i"))
+
+
+for (vT_plot in c(0,1)) {
+  v1_plot <- if (vT==0) v1_mid else v1_high
+  
+  for (r_in_plot in c(50,150)) {
+    print(
+    eqs_prop_inf %>%
+      pivot_wider(values_from=y, names_from=var) %>%
+      mutate(prop_inf = NQ_i / (NQ_s + NQ_i)) %>% 
+      filter(r <= 200, r_in==r_in_plot, v1==v1_plot, vT==vT_plot) %>%
+      ggplot() +
+      geom_tile(aes(x=0, y=r, fill=prop_inf, color=prop_inf)) +
+      scale_fill_gradientn(colors=rev(rainbow(7))[-1],
+                           name="proportion of questing\nnymphs infected") +
+      scale_color_gradientn(colors=rev(rainbow(7))[-1],
+                            name="proportion of questing\nnymphs infected") +
+      coord_polar() +
+      geom_hline(aes(yintercept=r_in), linetype="dashed", linewidth=1) +
+      scale_x_continuous(expand=expansion(c(0,0))) +
+      scale_y_continuous(expand=expansion(c(0,0)), name="distance from center of exclosure (m)") +
+      guides(fill = guide_colorbar(barheight = unit(1.5,"in"),
+                                   ticks.colour = "black",
+                                   ticks.linewidth = .5,
+                                   frame.colour = "black",
+                                   frame.linewidth = .5,
+                                   title.hjust = .5)) +
+      theme(panel.background=element_blank(),
+            panel.grid=element_blank(),
+            axis.line.y=element_line(),
+            axis.text.x=element_blank(),
+            axis.title.x=element_blank(),
+            axis.ticks.x=element_blank(),
+            legend.title=element_text(size=9),
+            axis.line.x=element_blank(),
+            legend.position="right")
+    )
+  }
+}
+
+
+
+
+
+
+
+######
+# code to make Figure S2 in the supplement
 
 eqs_vTs <- run_pdes(r_ins = 150, v1s=v1_high, vTs=c(0,1,3))
 
@@ -485,7 +534,7 @@ for (vT_plot in c(0,1,3)) {
 
 
 ######
-# code to make Figure S2 in the supplement
+# code to make Figure S3 in the supplement
 
 eqs_beta2N_reduction <- run_pdes(r_ins = 150, v1s=v1_mid, vTs=1, beta2N_reductions=c(.05,.2,1))
 
