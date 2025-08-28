@@ -357,10 +357,10 @@ for (r_in_plot in c(50,150)) {
     geom_tile(aes(x=time, y=r, fill=y, color=y)) +
     scale_fill_gradientn(colors=rev(rainbow(7))[-1],
                          name="density of infected\nquesting nymphs\n(per ha)",
-                         breaks=(if (r_in_plot==50) seq(4,12,2) else seq(2,8,2))) +
+                         breaks=(if (r_in_plot==50) seq(4,14,2) else seq(2,8,2))) +
     scale_color_gradientn(colors=rev(rainbow(7))[-1],
                           name="density of infected\nquesting nymphs\n(per ha)",
-                          breaks=(if (r_in_plot==50) seq(4,12,2) else seq(2,8,2))) +
+                          breaks=(if (r_in_plot==50) seq(4,14,2) else seq(2,8,2))) +
     scale_x_continuous(expand=expansion(c(0,0)), name="time since exclosure installed (days)") +
     scale_y_continuous(expand=expansion(c(0,0)), name="distance from center of exclosure (m)") +
     geom_hline(aes(yintercept=r_in), linetype="dashed", linewidth=1) +
