@@ -534,7 +534,7 @@ for (vT_plot in c(0,1,3)) {
 
 
 ######
-# code to make Figure S4 in the supplement
+# code to make Figure S3 in the supplement
 
 eqs_beta2N_reduction <- run_pdes(r_ins = 150, v1s=v1_mid, vTs=1, beta2N_reductions=c(.05,.2,1))
 
