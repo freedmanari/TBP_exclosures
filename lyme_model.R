@@ -536,10 +536,10 @@ for (vT_plot in c(0,1,3)) {
 ######
 # code to make Figure S3 in the supplement
 
-eqs_beta2N_reduction <- run_pdes(r_ins = 150, v1s=v1_mid, vTs=1, beta2N_reductions=c(.05,.2,1))
+eqs_beta2N_reduction <- run_pdes(r_ins = 150, v1s=v1_high, vTs=1, beta2N_reductions=c(.01,.05,1))
 
 
-for (beta2N_reduction_plot in c(.05,.2,1)) {
+for (beta2N_reduction_plot in c(.01,.05,1)) {
   print(
     eqs_beta2N_reduction %>%
       filter(r <= 200, beta2N_reduction==beta2N_reduction_plot) %>%
