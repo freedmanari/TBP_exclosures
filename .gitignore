@@ -1,9 +1,0 @@
-*.DS_Store
-figures/roughs/*
-figures/old/*
-*.Rhistory
-*main*
-*supplement*
-*blind*
-*.zip
-*cover*
