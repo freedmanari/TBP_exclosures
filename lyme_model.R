@@ -279,16 +279,15 @@ run_pdes <- function(r_ins, v1s=v1_mid, v2=250, vTs=0, beta_mults=beta_mult_mid,
 # code to make Figure 2 in the main text
 
 eqs <- run_pdes(r_ins=rs[rs>0 & rs<=300],
-                vTs=c(0,1),v1s=c(v1_low,v1_mid,v1_high))
+                vTs=c(0,1,3),v1s=c(v1_low,v1_mid,v1_high))
 
 facet_labels <- c("low rodent movement\n(10 m/day)","medium rodent movement\n(30 m/day)","high rodent movement\n(100 m/day)")
 names(facet_labels) <- c(v1_low, v1_mid,v1_high)
 
-
 eqs %>%
   mutate(area = 2*pi*r*dr,
          freq = area*y,
-         tick_mvmt = (vT > 0)) %>%
+         tick_mvmt = as.factor(vT)) %>%
   group_by(v1, r_in, outside=r>r_in, tick_mvmt) %>%
   summarise(avg_dens = sum(freq)/sum(area)) %>%
   ungroup() %>% 
@@ -299,7 +298,7 @@ eqs %>%
   scale_x_continuous(name="radius of exclosure (m)",limits=c(0,300),expand=c(0,0)) +
   scale_y_continuous(name="average density of infected\nquesting nymphs (per ha)",
                      breaks=seq(0,18,3),expand=expansion(c(0,.01))) +
-  scale_linetype_discrete(name="questing tick\nmovement",labels=c("0 m/day","1 m/day")) +
+  scale_linetype_manual(values=c("solid","32","12"),name="questing tick\nmovement",labels=c("0 m/day","1 m/day","3 m/day")) +
   theme(panel.background=element_blank(),
         panel.grid=element_blank(),
         axis.line.x=element_line(),
@@ -309,7 +308,7 @@ eqs %>%
         panel.spacing = unit(1, "lines"),
         legend.position = "bottom",
         legend.text = element_text(size=10),
-        legend.key = element_rect(fill = NA))
+        legend.key = element_rect(fill = NA, color=NA))
 
 
 
@@ -379,8 +378,8 @@ for (r_in_plot in c(50,150)) {
 #####
 # code to make Figure 5 in the main text
 
-eqs_tick_movement <- run_pdes(r_ins = c(50,150), v1s=v1_high, vTs=1)
-outs_tick_movement <- run_pdes(r_ins = c(50,150), v1s=v1_high, vTs=1, track_time=TRUE)
+eqs_tick_movement <- run_pdes(r_ins = c(50,150), v1s=v1_mid, vTs=1)
+outs_tick_movement <- run_pdes(r_ins = c(50,150), v1s=v1_mid, vTs=1, track_time=TRUE)
 
 for (r_in_plot in c(50,150)) {
   print(
@@ -444,18 +443,16 @@ for (r_in_plot in c(50,150)) {
 ######
 # code to make Figure S1 in the supplement
 
-eqs_prop_inf <- run_pdes(r_ins = c(50,150), v1s=c(v1_mid, v1_high), vTs=c(0,1), track_vars=c("NQ_s","NQ_i"))
+eqs_prop_inf <- run_pdes(r_ins = c(50,150), v1s=v1_mid, vTs=c(0,1), track_vars=c("NQ_s","NQ_i"))
 
 
 for (vT_plot in c(0,1)) {
-  v1_plot <- if (vT==0) v1_mid else v1_high
-  
   for (r_in_plot in c(50,150)) {
     print(
     eqs_prop_inf %>%
       pivot_wider(values_from=y, names_from=var) %>%
       mutate(prop_inf = NQ_i / (NQ_s + NQ_i)) %>% 
-      filter(r <= 200, r_in==r_in_plot, v1==v1_plot, vT==vT_plot) %>%
+      filter(r <= 200, r_in==r_in_plot, vT==vT_plot) %>%
       ggplot() +
       geom_tile(aes(x=0, y=r, fill=prop_inf, color=prop_inf)) +
       scale_fill_gradientn(colors=rev(rainbow(7))[-1],
@@ -492,54 +489,55 @@ for (vT_plot in c(0,1)) {
 
 
 ######
-# code to make Figure S2 in the supplement
+# code to make Figures S2-3 in the supplement
 
-eqs_vTs <- run_pdes(r_ins = 150, v1s=v1_high, vTs=c(0,1,3))
+eqs_vTs <- run_pdes(r_ins = c(50,150), v1s=v1_mid, vTs=c(0,1,3,5))
 
 
-for (vT_plot in c(0,1,3)) {
-  print(
-    eqs_vTs %>%
-      filter(r <= 200, vT==vT_plot) %>%
-      ggplot() +
-      geom_tile(aes(x=0, y=r, fill=y, color=y)) +
-      scale_fill_gradientn(colors=rev(rainbow(7))[-1],
-                           name="density of infected\nquesting nymphs\n(per ha)") +
-      scale_color_gradientn(colors=rev(rainbow(7))[-1],
-                            name="density of infected\nquesting nymphs\n(per ha)") +
-      coord_polar() +
-      geom_hline(aes(yintercept=r_in), linetype="dashed", linewidth=1) +
-      scale_x_continuous(expand=expansion(c(0,0))) +
-      scale_y_continuous(expand=expansion(c(0,0)), name="distance from center of exclosure (m)") +
-      guides(fill = guide_colorbar(barheight = unit(1.5,"in"),
-                                   ticks.colour = "black",
-                                   ticks.linewidth = .5,
-                                   frame.colour = "black",
-                                   frame.linewidth = .5,
-                                   title.hjust = .5)) +
-      theme(panel.background=element_blank(),
-            panel.grid=element_blank(),
-            axis.line.y=element_line(),
-            axis.text.x=element_blank(),
-            axis.title.x=element_blank(),
-            axis.ticks.x=element_blank(),
-            legend.title=element_text(size=9),
-            axis.line.x=element_blank(),
-            legend.position="right")
-  )
+for (r_in_plot in c(50,150)) {
+  for (vT_plot in c(0,1,3,5)) {
+    print(
+      eqs_vTs %>%
+        filter(r <= 200, r_in==r_in_plot, vT==vT_plot) %>%
+        ggplot() +
+        geom_tile(aes(x=0, y=r, fill=y, color=y)) +
+        scale_fill_gradientn(colors=rev(rainbow(7))[-1],
+                             name="density of infected\nquesting nymphs\n(per ha)") +
+        scale_color_gradientn(colors=rev(rainbow(7))[-1],
+                              name="density of infected\nquesting nymphs\n(per ha)") +
+        coord_polar() +
+        geom_hline(aes(yintercept=r_in), linetype="dashed", linewidth=1) +
+        scale_x_continuous(expand=expansion(c(0,0))) +
+        scale_y_continuous(expand=expansion(c(0,0)), name="distance from center of exclosure (m)") +
+        guides(fill = guide_colorbar(barheight = unit(1.5,"in"),
+                                     ticks.colour = "black",
+                                     ticks.linewidth = .5,
+                                     frame.colour = "black",
+                                     frame.linewidth = .5,
+                                     title.hjust = .5)) +
+        theme(panel.background=element_blank(),
+              panel.grid=element_blank(),
+              axis.line.y=element_line(),
+              axis.text.x=element_blank(),
+              axis.title.x=element_blank(),
+              axis.ticks.x=element_blank(),
+              legend.title=element_text(size=9),
+              axis.line.x=element_blank(),
+              legend.position="right")
+    )
+  }
 }
 
 
 
 
-
 ######
-# code to make Figure S3 in the supplement
+# code to make Figure S4 in the supplement
 
-eqs_beta2N_reduction <- run_pdes(r_ins = 150, v1s=v1_high, vTs=1, beta2N_reductions=c(.01,.05,1))
+eqs_beta2N_reduction <- run_pdes(r_ins = 150, v1s=v1_mid, vTs=1, beta2N_reductions=c(.05,.2,1))
 
 
-for (beta2N_reduction_plot in c(.01,.05,1)) {
+for (beta2N_reduction_plot in c(.05,.2,1)) {
   print(
     eqs_beta2N_reduction %>%
       filter(r <= 200, beta2N_reduction==beta2N_reduction_plot) %>%
@@ -572,4 +570,8 @@ for (beta2N_reduction_plot in c(.01,.05,1)) {
 }
 
 
-
+#####
+# to make make Figure S5 in the supplement:
+# first change "alpha = .33" to "alpha = 0" both times it occurs in the run_pdes function
+# and change "beta1A = beta_mult*.2" to "beta1A = 0" both times it occurs in the run_pdes function,
+# then re-run code to make main text Figures 4-5
