@@ -286,18 +286,17 @@ names(facet_labels) <- c(v1_low, v1_mid,v1_high)
 
 eqs %>%
   mutate(area = 2*pi*r*dr,
-         freq = area*y,
-         tick_mvmt = as.factor(vT)) %>%
-  group_by(v1, r_in, outside=r>r_in, tick_mvmt) %>%
+         freq = area*y) %>%
+  group_by(v1, r_in, outside=r>r_in, vT) %>%
   summarise(avg_dens = sum(freq)/sum(area)) %>%
   ungroup() %>% 
   ggplot() +
-  geom_line(aes(x=r_in, y=avg_dens, color=outside, lty=tick_mvmt), linewidth=.7) +
+  geom_line(aes(x=r_in, y=avg_dens, color=outside, lty=as.factor(vT)), linewidth=.7) +
   facet_rep_grid(~ v1, labeller=labeller(v1=facet_labels), scales="free", repeat.tick.labels = T) +
   scale_color_discrete(name="", labels=c("inside exclosure","outside exclosure")) +
   scale_x_continuous(name="radius of exclosure (m)",limits=c(0,300),expand=c(0,0)) +
   scale_y_continuous(name="average density of infected\nquesting nymphs (per ha)",
-                     breaks=seq(0,18,3),expand=expansion(c(0,.01))) +
+                     limits=c(0,18.5),breaks=seq(0,18,3),expand=expansion(c(0,.0))) +
   scale_linetype_manual(values=c("solid","32","12"),name="questing tick\nmovement",labels=c("0 m/day","1 m/day","3 m/day")) +
   theme(panel.background=element_blank(),
         panel.grid=element_blank(),
@@ -440,8 +439,36 @@ for (r_in_plot in c(50,150)) {
 
 
 
+
+
 ######
 # code to make Figure S1 in the supplement
+
+eqs %>%
+  filter(r_in %in% c(50,150), r<r_in) %>%
+  ggplot() +
+  geom_line(aes(x=r_in-r,y=y, color=as.factor(r_in), lty=as.factor(vT)),linewidth=.7) +
+  facet_rep_grid(~ v1, labeller=labeller(v1=facet_labels), scales="free", repeat.tick.labels = T) +
+  scale_x_continuous(name="distance from exclosure boundary",expand=c(0,0),limits=c(0,150)) +
+  scale_y_continuous(name="density of infected questing\nnymphs (NQi) inside exclosure",expand=c(0,.15)) +
+  scale_color_manual(values=c("brown","chartreuse4"),name="exclosure\nradius", labels=c("50 m","150 m")) +
+  scale_linetype_manual(values=c("solid","32","12"),name="questing tick\nmovement",labels=c("0 m/day","1 m/day","3 m/day")) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),
+        axis.line.x=element_line(),
+        axis.line.y=element_line(),
+        strip.background=element_blank(),
+        strip.text=element_text(size=10),
+        panel.spacing = unit(1, "lines"),
+        legend.position = "bottom",
+        legend.text = element_text(size=10),
+        legend.key = element_rect(fill = NA, color=NA))
+
+
+
+
+######
+# code to make Figure S2 in the supplement
 
 eqs_prop_inf <- run_pdes(r_ins = c(50,150), v1s=v1_mid, vTs=c(0,1), track_vars=c("NQ_s","NQ_i"))
 
@@ -489,7 +516,7 @@ for (vT_plot in c(0,1)) {
 
 
 ######
-# code to make Figures S2-3 in the supplement
+# code to make Figures S3-4 in the supplement
 
 eqs_vTs <- run_pdes(r_ins = c(50,150), v1s=v1_mid, vTs=c(0,1,3,5))
 
@@ -532,7 +559,7 @@ for (r_in_plot in c(50,150)) {
 
 
 ######
-# code to make Figure S4 in the supplement
+# code to make Figure S5 in the supplement
 
 eqs_beta2N_reduction <- run_pdes(r_ins = 150, v1s=v1_mid, vTs=1, beta2N_reductions=c(.05,.2,1))
 
@@ -571,7 +598,7 @@ for (beta2N_reduction_plot in c(.05,.2,1)) {
 
 
 #####
-# to make make Figure S5 in the supplement:
+# to make make Figure S6 in the supplement:
 # first change "alpha = .33" to "alpha = 0" both times it occurs in the run_pdes function
 # and change "beta1A = beta_mult*.2" to "beta1A = 0" both times it occurs in the run_pdes function,
 # then re-run code to make main text Figures 4-5
