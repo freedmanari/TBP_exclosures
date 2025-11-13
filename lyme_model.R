@@ -276,10 +276,10 @@ run_pdes <- function(r_ins, v1s=v1_mid, v2=250, vTs=0, beta_mults=beta_mult_mid,
 
 
 #####
-# code to make Figure 2 in the main text
+# code to make Figure 2 in the main text and Figure S1 in the supplement
 
 eqs <- run_pdes(r_ins=rs[rs>0 & rs<=300],
-                vTs=c(0,1,3),v1s=c(v1_low,v1_mid,v1_high))
+                vTs=c(0,1,3,5),v1s=c(v1_low,v1_mid,v1_high))
 
 facet_labels <- c("low rodent movement\n(10 m/day)","medium rodent movement\n(30 m/day)","high rodent movement\n(100 m/day)")
 names(facet_labels) <- c(v1_low, v1_mid,v1_high)
@@ -296,8 +296,8 @@ eqs %>%
   scale_color_discrete(name="", labels=c("inside exclosure","outside exclosure")) +
   scale_x_continuous(name="radius of exclosure (m)",limits=c(0,300),expand=c(0,0)) +
   scale_y_continuous(name="average density of infected\nquesting nymphs (per ha)",
-                     limits=c(0,18.5),breaks=seq(0,18,3),expand=expansion(c(0,.0))) +
-  scale_linetype_manual(values=c("solid","32","12"),name="questing tick\nmovement",labels=c("0 m/day","1 m/day","3 m/day")) +
+                     limits=c(0,18.5),breaks=seq(0,18,3),expand=expansion(c(0,0))) +
+  scale_linetype_manual(values=c("solid","32","3212","12"),name="questing tick\nmovement",labels=c("0 m/day","1 m/day","3 m/day","5 m/day")) +
   theme(panel.background=element_blank(),
         panel.grid=element_blank(),
         axis.line.x=element_line(),
@@ -307,7 +307,8 @@ eqs %>%
         panel.spacing = unit(1, "lines"),
         legend.position = "bottom",
         legend.text = element_text(size=10),
-        legend.key = element_rect(fill = NA, color=NA))
+        legend.key = element_rect(fill = NA, color=NA),
+        legend.key.width = unit(1.8, "line"))
 
 
 
@@ -438,83 +439,6 @@ for (r_in_plot in c(50,150)) {
 
 
 
-
-
-
-######
-# code to make Figure S1 in the supplement
-
-eqs %>%
-  filter(r_in %in% c(50,150), r<r_in) %>%
-  ggplot() +
-  geom_line(aes(x=r_in-r,y=y, color=as.factor(r_in), lty=as.factor(vT)),linewidth=.7) +
-  facet_rep_grid(~ v1, labeller=labeller(v1=facet_labels), scales="free", repeat.tick.labels = T) +
-  scale_x_continuous(name="distance from exclosure boundary",expand=c(0,0),limits=c(0,150)) +
-  scale_y_continuous(name="density of infected questing\nnymphs (NQi) inside exclosure",expand=c(0,.15)) +
-  scale_color_manual(values=c("brown","chartreuse4"),name="exclosure\nradius", labels=c("50 m","150 m")) +
-  scale_linetype_manual(values=c("solid","32","12"),name="questing tick\nmovement",labels=c("0 m/day","1 m/day","3 m/day")) +
-  theme(panel.background=element_blank(),
-        panel.grid=element_blank(),
-        axis.line.x=element_line(),
-        axis.line.y=element_line(),
-        strip.background=element_blank(),
-        strip.text=element_text(size=10),
-        panel.spacing = unit(1, "lines"),
-        legend.position = "bottom",
-        legend.text = element_text(size=10),
-        legend.key = element_rect(fill = NA, color=NA))
-
-
-
-
-######
-# code to make Figure S2 in the supplement
-
-eqs_prop_inf <- run_pdes(r_ins = c(50,150), v1s=v1_mid, vTs=c(0,1), track_vars=c("NQ_s","NQ_i"))
-
-
-for (vT_plot in c(0,1)) {
-  for (r_in_plot in c(50,150)) {
-    print(
-    eqs_prop_inf %>%
-      pivot_wider(values_from=y, names_from=var) %>%
-      mutate(prop_inf = NQ_i / (NQ_s + NQ_i)) %>% 
-      filter(r <= 200, r_in==r_in_plot, vT==vT_plot) %>%
-      ggplot() +
-      geom_tile(aes(x=0, y=r, fill=prop_inf, color=prop_inf)) +
-      scale_fill_gradientn(colors=rev(rainbow(7))[-1],
-                           name="proportion of questing\nnymphs infected") +
-      scale_color_gradientn(colors=rev(rainbow(7))[-1],
-                            name="proportion of questing\nnymphs infected") +
-      coord_polar() +
-      geom_hline(aes(yintercept=r_in), linetype="dashed", linewidth=1) +
-      scale_x_continuous(expand=expansion(c(0,0))) +
-      scale_y_continuous(expand=expansion(c(0,0)), name="distance from center of exclosure (m)") +
-      guides(fill = guide_colorbar(barheight = unit(1.5,"in"),
-                                   ticks.colour = "black",
-                                   ticks.linewidth = .5,
-                                   frame.colour = "black",
-                                   frame.linewidth = .5,
-                                   title.hjust = .5)) +
-      theme(panel.background=element_blank(),
-            panel.grid=element_blank(),
-            axis.line.y=element_line(),
-            axis.text.x=element_blank(),
-            axis.title.x=element_blank(),
-            axis.ticks.x=element_blank(),
-            legend.title=element_text(size=9),
-            axis.line.x=element_blank(),
-            legend.position="right")
-    )
-  }
-}
-
-
-
-
-
-
-
 ######
 # code to make Figures S3-4 in the supplement
 
@@ -558,8 +482,84 @@ for (r_in_plot in c(50,150)) {
 
 
 
+
+
 ######
 # code to make Figure S5 in the supplement
+
+eqs %>%
+  filter(r_in %in% c(50,150), r<r_in) %>%
+  ggplot() +
+  geom_line(aes(x=r_in-r,y=y, color=as.factor(r_in), lty=as.factor(vT)),linewidth=.7) +
+  facet_rep_grid(~ v1, labeller=labeller(v1=facet_labels), scales="free", repeat.tick.labels = T) +
+  scale_x_continuous(name="distance from exclosure boundary",expand=c(0,0),limits=c(0,150)) +
+  scale_y_continuous(name="density of infected questing\nnymphs (NQi) inside exclosure",expand=c(0,.15)) +
+  scale_color_manual(values=c("brown","chartreuse4"),name="exclosure\nradius", labels=c("50 m","150 m")) +
+  scale_linetype_manual(values=c("solid","32","3212","12"),name="questing tick\nmovement",labels=c("0 m/day","1 m/day","3 m/day","5 m/day")) +
+  theme(panel.background=element_blank(),
+        panel.grid=element_blank(),
+        axis.line.x=element_line(),
+        axis.line.y=element_line(),
+        strip.background=element_blank(),
+        strip.text=element_text(size=10),
+        panel.spacing = unit(1, "lines"),
+        legend.position = "bottom",
+        legend.text = element_text(size=10),
+        legend.key = element_rect(fill = NA, color=NA))
+
+
+
+
+
+
+
+######
+# code to make Figure S6 in the supplement
+
+eqs_prop_inf <- run_pdes(r_ins = c(50,150), v1s=v1_mid, vTs=c(0,1), track_vars=c("NQ_s","NQ_i"))
+
+
+for (vT_plot in c(0,1)) {
+  for (r_in_plot in c(50,150)) {
+    print(
+      eqs_prop_inf %>%
+        pivot_wider(values_from=y, names_from=var) %>%
+        mutate(prop_inf = NQ_i / (NQ_s + NQ_i)) %>% 
+        filter(r <= 200, r_in==r_in_plot, vT==vT_plot) %>%
+        ggplot() +
+        geom_tile(aes(x=0, y=r, fill=prop_inf, color=prop_inf)) +
+        scale_fill_gradientn(colors=rev(rainbow(7))[-1],
+                             name="proportion of questing\nnymphs infected") +
+        scale_color_gradientn(colors=rev(rainbow(7))[-1],
+                              name="proportion of questing\nnymphs infected") +
+        coord_polar() +
+        geom_hline(aes(yintercept=r_in), linetype="dashed", linewidth=1) +
+        scale_x_continuous(expand=expansion(c(0,0))) +
+        scale_y_continuous(expand=expansion(c(0,0)), name="distance from center of exclosure (m)") +
+        guides(fill = guide_colorbar(barheight = unit(1.5,"in"),
+                                     ticks.colour = "black",
+                                     ticks.linewidth = .5,
+                                     frame.colour = "black",
+                                     frame.linewidth = .5,
+                                     title.hjust = .5)) +
+        theme(panel.background=element_blank(),
+              panel.grid=element_blank(),
+              axis.line.y=element_line(),
+              axis.text.x=element_blank(),
+              axis.title.x=element_blank(),
+              axis.ticks.x=element_blank(),
+              legend.title=element_text(size=9),
+              axis.line.x=element_blank(),
+              legend.position="right")
+    )
+  }
+}
+
+
+
+
+######
+# code to make Figure S7 in the supplement
 
 eqs_beta2N_reduction <- run_pdes(r_ins = 150, v1s=v1_mid, vTs=1, beta2N_reductions=c(.05,.2,1))
 
@@ -598,7 +598,7 @@ for (beta2N_reduction_plot in c(.05,.2,1)) {
 
 
 #####
-# to make make Figure S6 in the supplement:
+# to make make Figure S8 in the supplement:
 # first change "alpha = .33" to "alpha = 0" both times it occurs in the run_pdes function
 # and change "beta1A = beta_mult*.2" to "beta1A = 0" both times it occurs in the run_pdes function,
 # then re-run code to make main text Figures 4-5

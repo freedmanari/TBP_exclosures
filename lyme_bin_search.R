@@ -127,7 +127,7 @@ r_ins <- rs[rs > 0 & rs < r_out * 3/4]
 switch_r_ins <- data.frame()
 
 for (beta_mult in c(beta_mult_low,beta_mult_mid,beta_mult_high)) {
-for (vT in c(0,1,3)) {
+for (vT in c(0,1,3,5)) {
   print(noquote(paste0("beta multiplier = ",beta_mult,", vT = ",vT)))
   print(noquote("v1 ="))
 for (v1 in seq(v1_low, v1_high, length=19)) {
@@ -151,7 +151,7 @@ for (v1 in seq(v1_low, v1_high, length=19)) {
 }
 
 
-# Figure 3 in the main text
+# Figure 3 in the main text and Figure S2 in the supplement
 switch_r_ins %>% 
   ggplot() +
   geom_line(aes(x=v1, y=switch_r_in,
@@ -164,7 +164,8 @@ switch_r_ins %>%
   xlab("average daily rodent movement (m/day)") +
   ylab("radius of exclosure (m)\nat which average NQi is equal\ninside & outside of exclosure") +
   scale_color_discrete(name="tick-host\ncontact rates",labels=c("low","medium","high")) +
-  scale_linetype_manual(values=c("solid","32","12"),name="questing tick\nmovement",labels=c("0 m/day","1 m/day","3 m/day"))
+  scale_linetype_manual(values=c("solid","32","3212","12"),name="questing tick\nmovement",labels=c("0 m/day","1 m/day","3 m/day","5 m/day")) +
+  theme(legend.key.width = unit(1.8, "line"))
 
 
 
