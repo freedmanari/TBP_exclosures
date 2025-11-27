@@ -2,8 +2,8 @@ README for "A unifying theoretical framework for tick-borne disease risk to expl
 
 Authors: Ari S. Freedman 123*, Simon A. Levin 1, Stephen A. Felt 4, Giulio A. De Leo 5
 1 Department of Ecology and Evolutionary Biology, Princeton University, Princeton, NJ 08544
-2 Vermont Complex Systems Institute, University of Vermont, Burlington, VT 05405
-3 Department of Plant Biology, University of Vermont, Burlington, VT 05405
+2 Department of Plant Biology, University of Vermont, Burlington, VT 05405
+3 Vermont Complex Systems Institute, University of Vermont, Burlington, VT 05405
 4 Department of Comparative Medicine, Stanford University, Stanford, CA 94305
 5 Hopkins Marine Station, Stanford University, Pacific Grove, CA 93950
 * Corresponding author; email: arisf@princeton.edu
