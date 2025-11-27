@@ -1,5 +1,8 @@
 README for "A unifying theoretical framework for tick-borne disease risk to explain conflicting results of exclosure experiments across scales"
 
+Published in Proceedings of the Royal Society B
+DOI: 10.1098/rspb.2025.2560
+
 Authors: Ari S. Freedman 123*, Simon A. Levin 1, Stephen A. Felt 4, Giulio A. De Leo 5
 1 Department of Ecology and Evolutionary Biology, Princeton University, Princeton, NJ 08544
 2 Department of Plant Biology, University of Vermont, Burlington, VT 05405
